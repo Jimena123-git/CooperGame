@@ -18,6 +18,10 @@ namespace CooperGame.Controllers
             return View();
         }
 
+        public IActionResult V2()
+        {
+            return View(); 
+        }
         public IActionResult Privacy()
         {
             return View();

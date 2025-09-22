@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\source\\repos\\CooperGame\\CooperGame\\CooperGame.csproj": {}
+    "C:\\Users\\negro\\source\\repos\\CooperGame\\CooperGame.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\source\\repos\\CooperGame\\CooperGame\\CooperGame.csproj": {
+    "C:\\Users\\negro\\source\\repos\\CooperGame\\CooperGame.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\source\\repos\\CooperGame\\CooperGame\\CooperGame.csproj",
+        "projectUniqueName": "C:\\Users\\negro\\source\\repos\\CooperGame\\CooperGame.csproj",
         "projectName": "CooperGame",
-        "projectPath": "C:\\Users\\User\\source\\repos\\CooperGame\\CooperGame\\CooperGame.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\source\\repos\\CooperGame\\CooperGame\\obj\\",
+        "projectPath": "C:\\Users\\negro\\source\\repos\\CooperGame\\CooperGame.csproj",
+        "packagesPath": "C:\\Users\\negro\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\negro\\source\\repos\\CooperGame\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\negro\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -80,7 +80,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

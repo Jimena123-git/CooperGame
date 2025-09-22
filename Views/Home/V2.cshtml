@@ -5,7 +5,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Coopera — Versión Botones (V1)</title>
+    <title>Coopera — Versión Minijuegos (V2)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 CSS (CDN) -->
@@ -18,14 +18,11 @@
 
     <nav class="navbar navbar-dark border-bottom border-secondary-subtle" style="background:#0b1220;">
         <div class="container">
-           
+            <a class="navbar-brand brand d-flex align-items-center gap-2" href="#">
                 <span class="fw-bold">Coopera</span>
-                <span class="badge rounded-pill text-bg-success">V1 (Botones)</span>
-            
-
-            <!-- Botón de redirección a V2 -->
-            <a class="btn btn-sm btn-outline-light" href="@Url.Action("V2", "Home")">Ir a V2</a>
-
+                <span class="badge rounded-pill text-bg-success">V2 (minijuegos + gráfico)</span>
+            </a>
+            <a class="btn btn-sm btn-outline-light" href="@Url.Action("Index", "Home")">Ir a V1</a>
             <div class="d-flex align-items-center gap-3">
                 <span id="playerNameDisplay" class="muted">Jugador: <em>Jugador1</em></span>
                 <button id="changeNameBtn" class="btn btn-sm btn-outline-light">Cambiar nombre</button>
