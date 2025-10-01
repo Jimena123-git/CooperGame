@@ -12,5 +12,18 @@ namespace CooperGame.Models
         public List<Resultado>? Resultados { get; set; }
         public List<Partida>? Partidas { get; set; }
 
+
+        public Jugador(string nombre)
+        {
+            Nombre = nombre;
+
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                throw new ArgumentException("El nombre no puede estar vacío o ser nulo.", nameof(nombre));
+
+
+            }
+        }
+
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CooperGame.Migrations.AppDb
+namespace CooperGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -82,8 +82,11 @@ namespace CooperGame.Migrations.AppDb
                     b.Property<int>("IdPartida")
                         .HasColumnType("int");
 
-                    b.Property<string>("Objetivo")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Meta")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
 
                     b.HasKey("IdRecurso");
 

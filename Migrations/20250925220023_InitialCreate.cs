@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CooperGame.Migrations.AppDb
+namespace CooperGame.Migrations
 {
     /// <inheritdoc />
-    public partial class ModelosCreadosYDbContext : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,9 +53,10 @@ namespace CooperGame.Migrations.AppDb
                 {
                     IdRecurso = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Objetivo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Meta = table.Column<int>(type: "int", nullable: true),
                     CantidadRecolectada = table.Column<int>(type: "int", nullable: false),
-                    IdPartida = table.Column<int>(type: "int", nullable: false)
+                    IdPartida = table.Column<int>(type: "int", nullable: false),
+                    Tipo = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

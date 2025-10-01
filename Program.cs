@@ -1,11 +1,15 @@
 using CooperGame.Data;
 using Microsoft.EntityFrameworkCore;
+using CooperGame.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // 1. Configurar el DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<MetaServices>();
 
 
 // Add services to the container.
@@ -21,7 +25,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();

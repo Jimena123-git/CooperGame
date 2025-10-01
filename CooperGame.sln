@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CooperGame", "CooperGame.csproj", "{204C1FBA-CE25-445A-BDEA-70F3BA7A5BD4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CooperGame.Tests", "..\CooperGame.Tests\CooperGame.Tests.csproj", "{964728C8-FFAF-4539-93AB-569E4235C2B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{204C1FBA-CE25-445A-BDEA-70F3BA7A5BD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204C1FBA-CE25-445A-BDEA-70F3BA7A5BD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204C1FBA-CE25-445A-BDEA-70F3BA7A5BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204C1FBA-CE25-445A-BDEA-70F3BA7A5BD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{964728C8-FFAF-4539-93AB-569E4235C2B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{964728C8-FFAF-4539-93AB-569E4235C2B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{964728C8-FFAF-4539-93AB-569E4235C2B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{964728C8-FFAF-4539-93AB-569E4235C2B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC02F334-CF11-4F75-B36B-5708B725A4CC}
+	EndGlobalSection
+EndGlobal
