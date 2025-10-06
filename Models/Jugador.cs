@@ -20,8 +20,6 @@ namespace CooperGame.Models
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 throw new ArgumentException("El nombre no puede estar vacío o ser nulo.", nameof(nombre));
-
-
             }
         }
 

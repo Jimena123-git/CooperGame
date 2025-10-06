@@ -12,5 +12,6 @@ namespace CooperGame.Models
         public Jugador? JugadorResultado { get; set; }
         public int IdPartida { get; set; }
         public Partida? Partida { get; set; }
+        public DateTime FechaRespuesta { get; set; }
     }
 }
