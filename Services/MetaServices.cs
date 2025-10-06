@@ -1,8 +1,6 @@
 ﻿using CooperGame.Data;
 using CooperGame.Models;
 
-
-
 namespace CooperGame.Services
 {
     public class MetaServices
@@ -10,11 +8,11 @@ namespace CooperGame.Services
         private readonly Random random = new Random();
         private readonly AppDbContext _context;
 
-        public  MetaServices (AppDbContext context)
+        public MetaServices(AppDbContext context)
         {
             _context = context;
-         
         }
+
         //25/09
         public void GenerarMetasV1(Partida partida, double factorDificultad)
         {
@@ -26,23 +24,19 @@ namespace CooperGame.Services
                 do
                 {
                     meta = (int)Math.Round(random.NextDouble() * factorDificultad * 100);
-                }
-                while (meta <= 10 || meta >= 100);
+                } while (meta <= 10 || meta >= 100);
 
                 Recurso recurso = new Recurso
                 {
                     Tipo = tipo,
                     Meta = meta,
                     CantidadRecolectada = 0,
-                    Partida = partida 
+                    Partida = partida // Solo la navegación
                 };
 
                 partida.Recursos.Add(recurso);
             }
-
-      
         }
-
 
         public void GenerarMetasV2(Partida partida, double factorDificultad)
         {
@@ -72,8 +66,6 @@ namespace CooperGame.Services
             }
 
             _context.SaveChanges();
-
         }
     }
 }
-

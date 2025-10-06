@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using CooperGame.Models;
+﻿using CooperGame.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CooperGame.Data
 {
@@ -8,41 +8,36 @@ namespace CooperGame.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
         public DbSet<Jugador> Jugadores { get; set; }
-        public DbSet<Resultado> Resultados { get; set; }
         public DbSet<Partida> Partidas { get; set; }
         public DbSet<Recurso> Recursos { get; set; }
+        public DbSet<Registro> Registros { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Resultado>()
-                .HasOne(resultado => resultado.JugadorResultado)
-                .WithMany(jugador => jugador.Resultados)
-                .HasForeignKey(resultado => resultado.IdJugador)
+            // Clave primaria compuesta: IdJugador + IdPartida + Tipo
+            modelBuilder.Entity<Registro>()
+                .HasKey(r => new { r.IdJugador, r.IdPartida, r.Tipo });
+
+            modelBuilder.Entity<Registro>()
+                .HasOne(r => r.Jugador)
+                .WithMany(j => j.Registros)
+                .HasForeignKey(r => r.IdJugador)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Resultado>()
-                .HasOne(resultado => resultado.Partida)
-                .WithMany(partida => partida.Resultados)
-                .HasForeignKey(resultado => resultado.IdPartida)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Partida>()
-                .HasOne(partida => partida.JugadorPartida)
-                .WithMany(jugador => jugador.Partidas)
-                .HasForeignKey(partida => partida.IdJugador)
+            modelBuilder.Entity<Registro>()
+                .HasOne(r => r.Partida)
+                .WithMany(p => p.Registros)
+                .HasForeignKey(r => r.IdPartida)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Recurso>()
-                .HasOne(recursos => recursos.Partida)
-                .WithMany(partida => partida.Recursos)
-                .HasForeignKey(recursos => recursos.IdPartida)
+                .HasOne(r => r.Partida)
+                .WithMany(p => p.Recursos)
+                .HasForeignKey(r => r.IdPartida)
                 .OnDelete(DeleteBehavior.Restrict);
-
         }
     }
-
 }

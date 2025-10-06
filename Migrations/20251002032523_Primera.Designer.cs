@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CooperGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250925220023_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251002032523_Primera")]
+    partial class Primera
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,9 @@ namespace CooperGame.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("IdJugador");
 
@@ -52,6 +54,9 @@ namespace CooperGame.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPartida"));
 
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly>("FechaFin")
                         .HasColumnType("date");
 
@@ -65,8 +70,6 @@ namespace CooperGame.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("IdPartida");
-
-                    b.HasIndex("IdJugador");
 
                     b.ToTable("Partidas");
                 });
@@ -85,7 +88,7 @@ namespace CooperGame.Migrations
                     b.Property<int>("IdPartida")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Meta")
+                    b.Property<int>("Meta")
                         .HasColumnType("int");
 
                     b.Property<int>("Tipo")
@@ -98,41 +101,34 @@ namespace CooperGame.Migrations
                     b.ToTable("Recursos");
                 });
 
-            modelBuilder.Entity("CooperGame.Models.Resultado", b =>
+            modelBuilder.Entity("Registro", b =>
                 {
-                    b.Property<int>("IdResultado")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdResultado"));
-
-                    b.Property<int>("CantidadResultadoPorJugador")
-                        .HasColumnType("int");
-
                     b.Property<int>("IdJugador")
                         .HasColumnType("int");
 
                     b.Property<int>("IdPartida")
                         .HasColumnType("int");
 
-                    b.HasKey("IdResultado");
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
 
-                    b.HasIndex("IdJugador");
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Puntaje")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdJugador", "IdPartida", "Tipo");
 
                     b.HasIndex("IdPartida");
 
-                    b.ToTable("Resultados");
-                });
-
-            modelBuilder.Entity("CooperGame.Models.Partida", b =>
-                {
-                    b.HasOne("CooperGame.Models.Jugador", "JugadorPartida")
-                        .WithMany("Partidas")
-                        .HasForeignKey("IdJugador")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("JugadorPartida");
+                    b.ToTable("Registros");
                 });
 
             modelBuilder.Entity("CooperGame.Models.Recurso", b =>
@@ -146,37 +142,35 @@ namespace CooperGame.Migrations
                     b.Navigation("Partida");
                 });
 
-            modelBuilder.Entity("CooperGame.Models.Resultado", b =>
+            modelBuilder.Entity("Registro", b =>
                 {
-                    b.HasOne("CooperGame.Models.Jugador", "JugadorResultado")
-                        .WithMany("Resultados")
+                    b.HasOne("CooperGame.Models.Jugador", "Jugador")
+                        .WithMany("Registros")
                         .HasForeignKey("IdJugador")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CooperGame.Models.Partida", "Partida")
-                        .WithMany("Resultados")
+                        .WithMany("Registros")
                         .HasForeignKey("IdPartida")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("JugadorResultado");
+                    b.Navigation("Jugador");
 
                     b.Navigation("Partida");
                 });
 
             modelBuilder.Entity("CooperGame.Models.Jugador", b =>
                 {
-                    b.Navigation("Partidas");
-
-                    b.Navigation("Resultados");
+                    b.Navigation("Registros");
                 });
 
             modelBuilder.Entity("CooperGame.Models.Partida", b =>
                 {
                     b.Navigation("Recursos");
 
-                    b.Navigation("Resultados");
+                    b.Navigation("Registros");
                 });
 #pragma warning restore 612, 618
         }

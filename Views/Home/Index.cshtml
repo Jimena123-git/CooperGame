@@ -1,37 +1,120 @@
-﻿@{
+﻿@using CooperGame.Models
+@using static CooperGame.Models.Partida
+@{
     ViewData["Title"] = "Home Page";
-}
+
+    List<Registro> registros = (List<Registro>)ViewData["Registros"];
+    EstadoPartida estadoPartida = (EstadoPartida)ViewData["EstadoPartida"];
+    int partidaId = (int)ViewData["PartidaId"];
+    string jugadorNombre = (string)ViewData["JugadorNombre"];
+    int jugadorId = (int)(ViewData["JugadorId"] ?? 1);
+}  
+
 <!doctype html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>Coopera — Versión Botones (V1)</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap 5 CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous">
+<meta charset="utf-8">
+<title>Coopera — Versión Botones (V1)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body class="bg-dark text-light">
 
-    <nav class="navbar navbar-dark border-bottom border-secondary-subtle" style="background:#0b1220;">
-        <div class="container">
-           
-                <span class="fw-bold">Coopera</span>
-                <span class="badge rounded-pill text-bg-success">V1 (Botones)</span>
-            
+<nav class="navbar navbar-dark border-bottom border-secondary-subtle" style="background:#0b1220;">
+<div class="container">
+<span class="fw-bold">Coopera</span>
+<span class="badge rounded-pill text-bg-success">V1 (Botones)</span>
+<form asp-action="CambiarNombre" method="post" class="d-flex">
+<input type="hidden" name="idJugador" value="@jugadorId" />
+<input type="text" name="nuevoNombre" class="form-control me-2" placeholder="Nuevo nombre" required />
+<button type="submit" class="btn btn-primary btn-sm">Cambiar Nombre</button>
+</form>
+<a class="btn btn-sm btn-outline-light" href="@Url.Action("V2", "Home")">Ir a V2</a>
+</div>
+</nav>
+<div class="container mt-4">
+<h4 class="text-white mb-3">Jugador actual: <strong>@jugadorNombre</strong></h4>
+<div class="row">
 
-            <!-- Botón de redirección a V2 -->
-            <a class="btn btn-sm btn-outline-light" href="@Url.Action("V2", "Home")">Ir a V2</a>
-
-            <div class="d-flex align-items-center gap-3">
-                <span id="playerNameDisplay" class="muted">Jugador: <em>Jugador1</em></span>
-                <button id="changeNameBtn" class="btn btn-sm btn-outline-light">Cambiar nombre</button>
-            </div>
-        </div>
-    </nav>
-
+@foreach (Recurso recurso in Model)
+{
+int cantidadRecolectada = registros.Where(r => r.Tipo == recurso.Tipo).Sum(r => r.Cantidad);
+bool completado = cantidadRecolectada >= recurso.Meta;
+<div class="col-md-4 mb-3">
+<div class="card text-white shadow-sm" style="background:#0b1220; opacity: 0.95; border:1px solid #223150;">
+<div class="card-body text-center">
+<h5 class="card-title">@recurso.Tipo</h5>
+<p class="card-text display-6">@cantidadRecolectada / @recurso.Meta</p>
+<form asp-action="Recolectar" method="post">
+<input type="hidden" name="idJugador" value="@jugadorId" />
+<input type="hidden" name="idPartida" value="@partidaId" />
+<input type="hidden" name="tipo" value="@recurso.Tipo" />
+<input type="hidden" name="cantidad" value="1" />
+<button type="submit" class="btn btn-success btn-sm" @(completado ? "disabled" : "")>+1</button>
+</form>
+</div>
+</div>
+</div>
+}
+</div>
+</div>
+@if (estadoPartida == EstadoPartida.PresentandoResultados)
+{
+<div class="modal fade show" style="display:block;" id="resultsModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal-content" style="background: #121a2b; border: 1px solid #223150;">
+<div class="modal-header border-bottom border-secondary-subtle">
+<h5 class="modal-title text-white">🎉 ¡Partida Completada!</h5>
+</div>
+<div class="modal-body">
+<h6 class="text-white mb-3">Contribuciones por jugador:</h6>
+<div class="table-responsive">
+<table class="table table-dark table-striped">
+<thead>
+<tr>
+<th>Jugador</th>
+<th>🪵 Madera</th>
+<th>🪨 Piedra</th>
+<th>🍎 Comida</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+@{
+    // Obtener la lista de jugadores únicos
+   var jugadores = registros.Select(r => r.Jugador).Distinct();
+}   
+    @foreach (var jugador in jugadores)
+{
+int madera = registros.Where(r => r.Jugador.IdJugador == jugador.IdJugador && r.Tipo == TipoRecurso.Madera).Sum(r => r.Cantidad);
+int piedra = registros.Where(r => r.Jugador.IdJugador == jugador.IdJugador && r.Tipo == TipoRecurso.Piedra).Sum(r => r.Cantidad);
+int comida = registros.Where(r => r.Jugador.IdJugador == jugador.IdJugador && r.Tipo == TipoRecurso.Comida).Sum(r => r.Cantidad);
+<tr>
+<td>@jugador.Nombre</td>
+<td>@madera</td>
+<td>@piedra</td>
+<td>@comida</td>
+<td>@(madera + piedra + comida)</td>
+</tr>
+}
+<tr class="table-warning">
+<td><strong>TOTALES</strong></td>
+<td>@registros.Where(r => r.Tipo == TipoRecurso.Madera).Sum(r => r.Cantidad)</td>
+<td>@registros.Where(r => r.Tipo == TipoRecurso.Piedra).Sum(r => r.Cantidad)</td>
+<td>@registros.Where(r => r.Tipo == TipoRecurso.Comida).Sum(r => r.Cantidad)</td>
+<td>@registros.Sum(r => r.Cantidad)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<form method="post" asp-action="ReiniciarPartida" asp-controller="Home">
+<input type="hidden" name="idJugador" value="@ViewData["JugadorId"]" />
+<button type="submit" class="btn btn-success btn-lg">🔄 Reiniciar Partida</button>
+</form>
+</div>
+</div>
+</div>}
 </body>
 </html>
+    

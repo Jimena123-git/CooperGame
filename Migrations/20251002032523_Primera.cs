@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CooperGame.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Primera : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,7 @@ namespace CooperGame.Migrations
                 {
                     IdJugador = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nombre = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     FechaRegistro = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
@@ -34,17 +34,12 @@ namespace CooperGame.Migrations
                     TiempoTotal = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaInicio = table.Column<DateOnly>(type: "date", nullable: false),
                     FechaFin = table.Column<DateOnly>(type: "date", nullable: false),
-                    IdJugador = table.Column<int>(type: "int", nullable: false)
+                    IdJugador = table.Column<int>(type: "int", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Partidas", x => x.IdPartida);
-                    table.ForeignKey(
-                        name: "FK_Partidas_Jugadores_IdJugador",
-                        column: x => x.IdJugador,
-                        principalTable: "Jugadores",
-                        principalColumn: "IdJugador",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -53,7 +48,7 @@ namespace CooperGame.Migrations
                 {
                     IdRecurso = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Meta = table.Column<int>(type: "int", nullable: true),
+                    Meta = table.Column<int>(type: "int", nullable: false),
                     CantidadRecolectada = table.Column<int>(type: "int", nullable: false),
                     IdPartida = table.Column<int>(type: "int", nullable: false),
                     Tipo = table.Column<int>(type: "int", nullable: false)
@@ -70,26 +65,28 @@ namespace CooperGame.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Resultados",
+                name: "Registros",
                 columns: table => new
                 {
-                    IdResultado = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CantidadResultadoPorJugador = table.Column<int>(type: "int", nullable: false),
                     IdJugador = table.Column<int>(type: "int", nullable: false),
-                    IdPartida = table.Column<int>(type: "int", nullable: false)
+                    IdPartida = table.Column<int>(type: "int", nullable: false),
+                    Tipo = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<int>(type: "int", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Puntaje = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Resultados", x => x.IdResultado);
+                    table.PrimaryKey("PK_Registros", x => new { x.IdJugador, x.IdPartida, x.Tipo });
                     table.ForeignKey(
-                        name: "FK_Resultados_Jugadores_IdJugador",
+                        name: "FK_Registros_Jugadores_IdJugador",
                         column: x => x.IdJugador,
                         principalTable: "Jugadores",
                         principalColumn: "IdJugador",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Resultados_Partidas_IdPartida",
+                        name: "FK_Registros_Partidas_IdPartida",
                         column: x => x.IdPartida,
                         principalTable: "Partidas",
                         principalColumn: "IdPartida",
@@ -97,23 +94,13 @@ namespace CooperGame.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Partidas_IdJugador",
-                table: "Partidas",
-                column: "IdJugador");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Recursos_IdPartida",
                 table: "Recursos",
                 column: "IdPartida");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Resultados_IdJugador",
-                table: "Resultados",
-                column: "IdJugador");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Resultados_IdPartida",
-                table: "Resultados",
+                name: "IX_Registros_IdPartida",
+                table: "Registros",
                 column: "IdPartida");
         }
 
@@ -124,13 +111,13 @@ namespace CooperGame.Migrations
                 name: "Recursos");
 
             migrationBuilder.DropTable(
-                name: "Resultados");
-
-            migrationBuilder.DropTable(
-                name: "Partidas");
+                name: "Registros");
 
             migrationBuilder.DropTable(
                 name: "Jugadores");
+
+            migrationBuilder.DropTable(
+                name: "Partidas");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CooperGame.Models
 {
@@ -7,11 +6,14 @@ namespace CooperGame.Models
     {
         [Key]
         public int IdJugador { get; set; }
-        public string? Nombre { get; set; }
-        public DateOnly FechaRegistro { get; set; }
-        public List<Resultado>? Resultados { get; set; }
-        public List<Partida>? Partidas { get; set; }
 
+        [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "El nombre debe tener entre 1 y 20 caracteres.")]
+        [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = "El nombre solo puede contener letras y números.")]
+        public string? Nombre { get; set; }
+
+        public DateOnly FechaRegistro { get; set; }
+        public List<Registro> Registros { get; set; }
 
         public Jugador(string nombre)
         {
@@ -20,10 +22,7 @@ namespace CooperGame.Models
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 throw new ArgumentException("El nombre no puede estar vacío o ser nulo.", nameof(nombre));
-
-
             }
         }
-
     }
 }
