@@ -14,7 +14,6 @@ namespace CooperGame.Models
 
         public DateOnly FechaRegistro { get; set; }
         public List<Registro> Registros { get; set; }
-
         public Jugador(string nombre)
         {
             Nombre = nombre;
