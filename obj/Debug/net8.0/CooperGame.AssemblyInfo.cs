@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CooperGame")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+84d9847c9e1d51f627e66b7471edc3d7769266be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c23dee240295b6866f0a0485cb091aaf76471d4")]
 [assembly: System.Reflection.AssemblyProductAttribute("CooperGame")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CooperGame")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
