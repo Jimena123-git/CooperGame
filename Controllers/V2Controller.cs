@@ -17,12 +17,7 @@ namespace CooperGame.Controllers
             _metaService = metaService;
         }
 
-        public IActionResult Index()
-        {
-            Partida partida = new Partida();
-            _metaService.GenerarMetasV2(partida, 1.0);
-            return View();
-        }
+     
 
         public IActionResult V2()
         {

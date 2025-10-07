@@ -5,9 +5,11 @@ namespace CooperGame.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
         {
         }
+
         public DbSet<Jugador> Jugadores { get; set; }
         public DbSet<Partida> Partidas { get; set; }
         public DbSet<Recurso> Recursos { get; set; }
@@ -17,7 +19,6 @@ namespace CooperGame.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Clave primaria compuesta: IdJugador + IdPartida + Tipo
             modelBuilder.Entity<Registro>()
                 .HasKey(r => new { r.IdJugador, r.IdPartida, r.Tipo });
 
@@ -30,12 +31,6 @@ namespace CooperGame.Data
             modelBuilder.Entity<Registro>()
                 .HasOne(r => r.Partida)
                 .WithMany(p => p.Registros)
-                .HasForeignKey(r => r.IdPartida)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Recurso>()
-                .HasOne(r => r.Partida)
-                .WithMany(p => p.Recursos)
                 .HasForeignKey(r => r.IdPartida)
                 .OnDelete(DeleteBehavior.Restrict);
         }

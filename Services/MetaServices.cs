@@ -1,11 +1,12 @@
-﻿using CooperGame.Data;
+﻿    using CooperGame.Data;
 using CooperGame.Models;
+using System;
 
 namespace CooperGame.Services
 {
     public class MetaServices
     {
-        private readonly Random random = new Random();
+        private static readonly Random random = new Random();
         private readonly AppDbContext _context;
 
         public MetaServices(AppDbContext context)
@@ -13,32 +14,30 @@ namespace CooperGame.Services
             _context = context;
         }
 
-        //25/09
-        public void GenerarMetasV1(Partida partida, double factorDificultad)
+        public int GenerarMetasPorPartida()
         {
-            partida.Recursos ??= new List<Recurso>();
+            int MetaXRecurso = GenerarMeta();
 
-            foreach (TipoRecurso tipo in Enum.GetValues(typeof(TipoRecurso)))
-            {
-                int meta;
-                do
-                {
-                    meta = (int)Math.Round(random.NextDouble() * factorDificultad * 100);
-                } while (meta <= 10 || meta >= 100);
+            return MetaXRecurso;
 
-                Recurso recurso = new Recurso
-                {
-                    Tipo = tipo,
-                    Meta = meta,
-                    CantidadRecolectada = 0,
-                    Partida = partida // Solo la navegación
-                };
-
-                partida.Recursos.Add(recurso);
-            }
         }
 
-        public void GenerarMetasV2(Partida partida, double factorDificultad)
+
+        public int GenerarMeta()
+        {
+            double numero = random.NextDouble(); 
+            int meta = (int)Math.Floor(numero * 100);
+
+            if (meta < 10) meta = 10;
+            if (meta > 100) meta = 100;
+
+            return meta;
+        }
+    }
+}
+
+
+       /* public void GenerarMetasV2(Partida partida, double factorDificultad)
         {
             partida.Recursos ??= new List<Recurso>();
 
@@ -68,4 +67,4 @@ namespace CooperGame.Services
             _context.SaveChanges();
         }
     }
-}
+}*/

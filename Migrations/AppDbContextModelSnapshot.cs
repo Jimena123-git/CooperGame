@@ -30,9 +30,6 @@ namespace CooperGame.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdJugador"));
 
-                    b.Property<DateOnly>("FechaRegistro")
-                        .HasColumnType("date");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -54,17 +51,20 @@ namespace CooperGame.Migrations
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("FechaFin")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("FechaInicio")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("IdJugador")
+                    b.Property<int>("MetaComida")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("TiempoTotal")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("MetaMadera")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MetaPiedra")
+                        .HasColumnType("int");
 
                     b.HasKey("IdPartida");
 
@@ -79,21 +79,10 @@ namespace CooperGame.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRecurso"));
 
-                    b.Property<int>("CantidadRecolectada")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdPartida")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Meta")
-                        .HasColumnType("int");
-
                     b.Property<int>("Tipo")
                         .HasColumnType("int");
 
                     b.HasKey("IdRecurso");
-
-                    b.HasIndex("IdPartida");
 
                     b.ToTable("Recursos");
                 });
@@ -115,28 +104,17 @@ namespace CooperGame.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("IdRegistro")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("Puntaje")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRegistro"));
 
                     b.HasKey("IdJugador", "IdPartida", "Tipo");
 
                     b.HasIndex("IdPartida");
 
                     b.ToTable("Registros");
-                });
-
-            modelBuilder.Entity("CooperGame.Models.Recurso", b =>
-                {
-                    b.HasOne("CooperGame.Models.Partida", "Partida")
-                        .WithMany("Recursos")
-                        .HasForeignKey("IdPartida")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Partida");
                 });
 
             modelBuilder.Entity("Registro", b =>
@@ -165,8 +143,6 @@ namespace CooperGame.Migrations
 
             modelBuilder.Entity("CooperGame.Models.Partida", b =>
                 {
-                    b.Navigation("Recursos");
-
                     b.Navigation("Registros");
                 });
 #pragma warning restore 612, 618

@@ -1,4 +1,4 @@
-using CooperGame.Data;
+ï»¿using CooperGame.Data;
 using CooperGame.Models;
 using CooperGame.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,172 +10,123 @@ namespace CooperGame.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly MetaServices _metaService;
         private readonly AppDbContext _context;
+        private readonly PartidaService _partidaService;
 
-        public HomeController(ILogger<HomeController> logger, MetaServices metaService, AppDbContext context)
+        public HomeController(AppDbContext context, PartidaService partidaService)
         {
-            _logger = logger;
-            _metaService = metaService;
             _context = context;
+            _partidaService = partidaService;
         }
 
         public IActionResult Index()
         {
+            int? jugadorId = HttpContext.Session.GetInt32("JugadorId");
+            string jugadorNombre = HttpContext.Session.GetString("JugadorNombre") ?? "Invitado";
 
-            int jugadorId = TempData["JugadorId"] != null ? (int)TempData["JugadorId"] : 1;
-            // Buscar la última partida en estado Jugando
-            Partida partida = _context.Partidas.Include(p => p.Recursos).Include(p => p.Registros).ThenInclude(r => r.Jugador).Where(p => p.Estado == EstadoPartida.Jugando || p.Estado == EstadoPartida.PresentandoResultados)
-            .OrderByDescending(p => p.FechaInicio).FirstOrDefault();
+            Partida? partida = _context.Partidas.Include(p => p.Registros)
+                    .Where(p => p.Estado == EstadoPartida.Jugando)
+                    .FirstOrDefault();
 
-            // Buscar o crear jugador por Id
-            Jugador jugador = _context.Jugadores.FirstOrDefault(j => j.IdJugador == jugadorId);
-            if (jugador == null)
-            {
-                jugador = new Jugador("Jugador1");
-                _context.Jugadores.Add(jugador);
-                _context.SaveChanges();
-                jugadorId = jugador.IdJugador;
-            }
+            
 
-            // Crear partida si no hay ninguna
             if (partida == null)
             {
-                partida = new Partida
-                {
-                    FechaInicio = DateOnly.FromDateTime(DateTime.Now),
-                    Estado = EstadoPartida.Jugando,
-                    Recursos = new List<Recurso>()
-                };
-
-                _metaService.GenerarMetasV1(partida, 1.0);
-                _context.Partidas.Add(partida);
-                _context.SaveChanges(); ;
+                partida = _context.Partidas.Include(p => p.Registros)
+                          .Where(p => p.Estado == EstadoPartida.PresentandoResultados)
+                          .FirstOrDefault();
             }
-
-            // Obtener registros de la partida
-            List<Registro> registros = _context.Registros
-            .Include(r => r.Jugador).Where(r => r.IdPartida == partida.IdPartida).ToList();
-
-            // Revisar si todas las metas están completas
-            bool todasCompletas = partida.Recursos.All(r =>
-            registros.Where(reg => reg.Tipo == r.Tipo).Sum(reg => reg.Cantidad) >= r.Meta
-            );
-
-            if (todasCompletas && partida.Estado == EstadoPartida.Jugando)
+            
+            if (partida == null)
             {
-                partida.Estado = EstadoPartida.PresentandoResultados;
-                _context.Partidas.Update(partida);
-                _context.SaveChanges();
+                partida = _partidaService.CrearPartida();
+                HttpContext.Session.SetInt32("PartidaId", partida.IdPartida);
             }
+            
 
-            ViewData["JugadorNombre"] = jugador.Nombre;
-            ViewData["JugadorId"] = jugador.IdJugador;
-            ViewData["PartidaId"] = partida.IdPartida;
-            ViewData["EstadoPartida"] = partida.Estado;
-            ViewData["Registros"] = registros;
-            TempData["JugadorId"] = jugador.IdJugador;
+            var vm = new HomeViewModel
+            {
+                JugadorId = jugadorId ?? 0,
+                JugadorNombre = jugadorNombre,
+                Partida = partida,
+                EstadoPartida = partida?.Estado ?? EstadoPartida.Jugando,
+                Registros = _context.Registros
+                    .Where(r => r.IdPartida == partida.IdPartida)
+                    .ToList()
+            };
 
-            return View(partida.Recursos);
+            return View(vm);
         }
 
         [HttpPost]
-        public IActionResult Recolectar(int idJugador, int idPartida, TipoRecurso tipo, int cantidad)
+        public IActionResult Recolectar(TipoRecurso tipo, int cantidad = 1)
         {
-            // Evitar crear Registro con FK no resuelta
-            Jugador jugador = _context.Jugadores.FirstOrDefault(j => j.IdJugador == idJugador);
-            Partida partida = _context.Partidas.FirstOrDefault(p => p.IdPartida == idPartida);
+            int? jugadorId = HttpContext.Session.GetInt32("JugadorId");
+            int? partidaId = HttpContext.Session.GetInt32("PartidaId");
+
+            if (!jugadorId.HasValue || !partidaId.HasValue)
+                return RedirectToAction("Index");
+
+            Jugador? jugador = _context.Jugadores.FirstOrDefault(j => j.IdJugador == jugadorId);
+            Partida? partida = _context.Partidas.FirstOrDefault(p => p.IdPartida == partidaId);
+
+
             if (jugador == null || partida == null)
                 return RedirectToAction("Index");
 
-            Registro registro = _context.Registros.FirstOrDefault(r => r.IdJugador == idJugador && r.IdPartida == idPartida && r.Tipo == tipo);
+            Registro? registro = _context.Registros
+                .FirstOrDefault(r => r.IdJugador == jugador.IdJugador && 
+                                     r.IdPartida == partida.IdPartida && 
+                                     r.Tipo == tipo);
 
-            if (registro != null)
+            int meta = tipo switch
             {
-                registro.Cantidad += cantidad;
-                registro.Puntaje += cantidad;
-                _context.Registros.Update(registro);
-            }
-            else
+                TipoRecurso.Comida => partida.MetaComida,
+                TipoRecurso.Piedra => partida.MetaPiedra,
+                TipoRecurso.Madera => partida.MetaMadera,
+                _ => 0
+            };
+
+            int cantidadActual = registro?.Cantidad ?? 0;
+            int cantidadRestante = Math.Max(0, meta - cantidadActual);
+            int cantidadARecolectar = Math.Min(cantidad, cantidadRestante);
+
+            if (registro == null)
             {
                 registro = new Registro
                 {
-                    Jugador = jugador,
                     IdJugador = jugador.IdJugador,
                     IdPartida = partida.IdPartida,
                     Tipo = tipo,
-                    Cantidad = cantidad,
-                    Puntaje = cantidad,
+                    Cantidad = cantidadARecolectar,
                     Fecha = DateTime.Now
                 };
                 _context.Registros.Add(registro);
             }
-
-            _context.SaveChanges();
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public IActionResult CambiarNombre(int idJugador, string nuevoNombre)
-        {
-            Jugador jugador = _context.Jugadores.FirstOrDefault(j => j.IdJugador == idJugador);
-            if (jugador != null)
+            else
             {
-                jugador.Nombre = nuevoNombre;
-                _context.SaveChanges();
+                registro.Cantidad += cantidadARecolectar;
             }
+            bool completadasTodas =
+             partida.Registros.Where(r => r.Tipo == TipoRecurso.Comida).Sum(r => r.Cantidad) >= partida.MetaComida &&
+             partida.Registros.Where(r => r.Tipo == TipoRecurso.Piedra).Sum(r => r.Cantidad) >= partida.MetaPiedra &&
+             partida.Registros.Where(r => r.Tipo == TipoRecurso.Madera).Sum(r => r.Cantidad) >= partida.MetaMadera;
 
-            TempData["JugadorId"] = idJugador;
-            return RedirectToAction("Index");
-        }
-
-        public IActionResult V2()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult ReiniciarPartida(string nuevoNombre)
-        {
-            // 1. Crear nuevo jugador cada vez
-            Jugador jugador = new Jugador(string.IsNullOrWhiteSpace(nuevoNombre) ? "Jugador1" : nuevoNombre);
-            _context.Jugadores.Add(jugador);
-            _context.SaveChanges(); // se genera jugador.Id
-
-            // 2. Crear nueva partida
-            Partida nuevaPartida = new Partida
+            if (completadasTodas)
             {
-                FechaInicio = DateOnly.FromDateTime(DateTime.Now),
-                Estado = EstadoPartida.Jugando,
-                Recursos = new List<Recurso>()
-            };
-
-            _metaService.GenerarMetasV1(nuevaPartida, 1.0);
-
-            _context.Partidas.Add(nuevaPartida);
-            _context.SaveChanges(); // se genera partida.Id
-
-            // 3. Guardar recursos (solo asignar IdPartida)
-            foreach (Recurso recurso in nuevaPartida.Recursos)
-            {
-                recurso.IdPartida = nuevaPartida.IdPartida;
-                _context.Recursos.Add(recurso);
+                partida.Estado = EstadoPartida.PresentandoResultados;
             }
             _context.SaveChanges();
-
-            // 4. Guardar IdJugador en TempData para la “sesión”
-            TempData["JugadorId"] = jugador.IdJugador;
-
             return RedirectToAction("Index");
         }
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel 
+            { 
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
+            });
         }
     }
 }

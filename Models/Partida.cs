@@ -7,10 +7,15 @@ namespace CooperGame.Models
         [Key]
         public int IdPartida { get; set; }
 
-        public DateOnly FechaInicio { get; set; }
-        public DateOnly FechaFin { get; set; }
-    //   public List<Recurso>? Recursos { get; set; }
-        public List<Registro>? Registros { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+
+        public int MetaPiedra{  get; set; }
+
+        public int MetaComida { get; set; }
+
+        public int MetaMadera { get; set; }
+        public List<Registro> Registros { get; set; }
                      
         public EstadoPartida Estado { get; set; } = EstadoPartida.Jugando;
 
