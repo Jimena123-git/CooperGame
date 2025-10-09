@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null; // Partial view
+}
+
+<div class="modal fade" id="modalComida" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Minijuego de Proposiciones</h5>
+                <button type="button" class="btn-close btn-close-white btn-cancelar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p id="temporizadorComida">⏳ 60s</p>
+                <h3 id="numerosComida">?</h3>
+                <p id="proposicionComida" class="mt-3"></p>
+                <div class="d-flex justify-content-center gap-3 mt-2">
+                    <button id="botonVerdaderoComida" class="btn btn-success" disabled>Verdadero</button>
+                    <button id="botonFalsoComida" class="btn btn-danger" disabled>Falso</button>
+                </div>
+                <small id="mensajeComida" class="mt-2 d-block" style="display:none;"></small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

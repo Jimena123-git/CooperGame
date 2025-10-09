@@ -1,4 +1,4 @@
-﻿    using CooperGame.Data;
+﻿using CooperGame.Data;
 using CooperGame.Models;
 using System;
 
@@ -32,6 +32,34 @@ namespace CooperGame.Services
             if (meta > 100) meta = 100;
 
             return meta;
+        }
+
+        public int GenerarMetaV2()
+        {
+            double numero = random.NextDouble();
+            int meta = (int)Math.Round(numero * 10);
+
+            if (meta < 1) meta = 1;
+            if (meta > 10) meta = 10;
+
+            return meta;
+        }
+
+        // Generar todas las metas de la partida V2
+        public void GenerarMetasV2(Partida partida)
+        {
+            partida.Recursos ??= new List<Recurso>();
+
+            foreach (TipoRecurso tipo in Enum.GetValues(typeof(TipoRecurso)))
+            {
+                partida.Recursos.Add(new Recurso
+                {
+                    Tipo = tipo,
+                    Meta = GenerarMetaV2(),
+                    CantidadRecolectada = 0,
+                    Partida = partida
+                });
+            }
         }
     }
 }

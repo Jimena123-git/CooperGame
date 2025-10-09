@@ -14,6 +14,8 @@ namespace CooperGame.Data
         public DbSet<Partida> Partidas { get; set; }
         public DbSet<Recurso> Recursos { get; set; }
         public DbSet<Registro> Registros { get; set; }
+       
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

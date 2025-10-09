@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CooperGame.Migrations
 {
     /// <inheritdoc />
-    public partial class iniciandoMigracion : Migration
+    public partial class primeraMigracion : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

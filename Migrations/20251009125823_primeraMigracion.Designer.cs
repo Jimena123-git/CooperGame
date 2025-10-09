@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CooperGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251007200803_iniciandoMigracion")]
-    partial class iniciandoMigracion
+    [Migration("20251009125823_primeraMigracion")]
+    partial class primeraMigracion
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

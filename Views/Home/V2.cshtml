@@ -1,34 +1,294 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Coopera V2 - Minijuegos";
 }
 <!doctype html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Coopera — Versión Minijuegos (V2)</title>
+    <title>@ViewData["Title"]</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap 5 CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-dark text-light">
-
     <nav class="navbar navbar-dark border-bottom border-secondary-subtle" style="background:#0b1220;">
         <div class="container">
-            <a class="navbar-brand brand d-flex align-items-center gap-2" href="#">
-                <span class="fw-bold">Coopera</span>
-                <span class="badge rounded-pill text-bg-success">V2 (minijuegos + gráfico)</span>
-            </a>
-            <a class="btn btn-sm btn-outline-light" href="@Url.Action("Index", "Home")">Ir a V1</a>
+            <a class="navbar-brand fw-bold" href="#">Coopera</a>
+            <span class="badge text-bg-success">V2 (Minijuegos)</span>
             <div class="d-flex align-items-center gap-3">
-                <span id="playerNameDisplay" class="muted">Jugador: <em>Jugador1</em></span>
-                <button id="changeNameBtn" class="btn btn-sm btn-outline-light">Cambiar nombre</button>
+
+                <button id="cambiarNombreBtn" class="btn btn-sm btn-outline-light">Cambiar nombre</button>
             </div>
         </div>
     </nav>
 
+    <!-- Modal para ingresar nombre -->
+    <div class="modal fade" id="modalRegistrarJugador" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-white" style="background:#0b1220; opacity:0.95; border:1px solid #223150;">
+                <div class="modal-header border-bottom border-secondary-subtle">
+                    <h5 class="modal-title">Ingresar nombre</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="/Jugador/Registrar">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del jugador</label>
+                            <input type="text" name="nombre" class="form-control" required />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Entrar al juego</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones para abrir minijuegos -->
+    <div class="container text-center mt-4">
+        <h2>Recolecta Recursos</h2>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <button class="btn btn-primary abrir-minijuego" data-recurso="Madera">Madera</button>
+            <button class="btn btn-secondary abrir-minijuego" data-recurso="Piedra">Piedra</button>
+            <button class="btn btn-warning abrir-minijuego" data-recurso="Comida">Comida</button>
+        </div>
+    </div>
+
+    <!-- Contenedor para cargar los modales -->
+    <div id="contenedorModales"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cambiar nombre
+        document.getElementById('cambiarNombreBtn').addEventListener('click', () => {
+            const modal = new bootstrap.Modal(document.getElementById('modalRegistrarJugador'));
+            modal.show();
+        });
+
+        let intervaloTemporizador;
+
+        // Función generica para countdown
+        function iniciarTemporizador(elemento, duracion, alTerminar) {
+            clearInterval(intervaloTemporizador);
+            let seg = duracion;
+            elemento.innerText = `⏳ ${seg}s`;
+            intervaloTemporizador = setInterval(() => {
+                seg--;
+                elemento.innerText = `⏳ ${seg}s`;
+                if (seg <= 0) {
+                    clearInterval(intervaloTemporizador);
+                    if (alTerminar) alTerminar();
+                }
+            }, 1000);
+        }
+
+        // Abrir minijuego según recurso
+        async function abrirMinijuego(recurso) {
+            const responese = await fetch(`/V2/AbrirMinijuego/${recurso}`);
+            const html = await responese.text();
+            const contenedor = document.getElementById("contenedorModales");
+            contenedor.innerHTML = html;
+
+            const miniJuegoModal = contenedor.querySelector(".modal");
+            if (!miniJuegoModal) return;
+            const modal = new bootstrap.Modal(miniJuegoModal, { backdrop: 'static', keyboard: false });
+            modal.show();
+
+            // Cancelar modal
+            miniJuegoModal.querySelectorAll(".btn-cancelar").forEach(btn => btn.addEventListener("click", () => {
+                clearInterval(intervaloTemporizador);
+                modal.hide();
+            }));
+
+            if (recurso === "Madera") iniciarMadera(miniJuegoModal, modal);
+            if (recurso === "Piedra") iniciarPiedra(miniJuegoModal, modal);
+            if (recurso === "Comida") iniciarComida(miniJuegoModal, modal);
+
+            miniJuegoModal.addEventListener('hidden.bs.modal', () => contenedor.innerHTML = "");
+        }
+
+        /* ------------------ MINIJUEGO MADERA ------------------ */
+        function iniciarMadera(miniJuegoModal, modal) {
+            const displayNumeros = miniJuegoModal.querySelector("#numerosMadera");
+            const input = miniJuegoModal.querySelector("#campoRespuestaMadera");
+            const mensaje = miniJuegoModal.querySelector("#mensajeMadera");
+            const botonEnviar = miniJuegoModal.querySelector("#botonEnviarMadera");
+            const temporizadorMadera = miniJuegoModal.querySelector("#temporizadorMadera");
+
+            const numeros = Array.from({ length: 3 }, () => Math.floor(Math.random() * 10) + 1);
+            displayNumeros.innerText = numeros.join(" + ");
+
+            iniciarTemporizador(temporizadorMadera, 60, () => {
+                mostrarMensaje(mensajeMadera, "⏳ Tiempo agotado", false);
+                // Cierra el modal después de 1 segundo
+                setTimeout(() => modal.hide(), 1000);
+            });
+
+
+            botonEnviar.onclick = async () => {
+                mensaje.style.display = "none";
+                const respuestaUsuario = input.value.trim();
+                if (!/^\d+$/.test(respuestaUsuario)) return mostrarMensaje(mensaje, "Por favor ingresa un número válido", false);
+
+                const respuesta = parseInt(respuestaUsuario);
+                if (respuesta < 0 || respuesta > 9999) return mostrarMensaje(mensaje, "Número entre 0 y 9999", false);
+
+                const body = { num1: numeros[0], num2: numeros[1], num3: numeros[2], respuesta };
+
+                const response = await fetch('/V2/ValidarMadera', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+                clearInterval(intervaloTemporizador);
+                mostrarMensaje(mensaje, data.mensaje, data.correcto);
+                setTimeout(() => modal.hide(), data.correcto ? 1000 : 2000);
+            };
+        }
+        
+        /* ------------------ MINIJUEGO PIEDRA ------------------ */
+        function iniciarPiedra(miniJuegoModal, modal) {
+            const displaySecuencia = miniJuegoModal.querySelector("#secuenciaPiedra");
+            const preguntaPiedra = miniJuegoModal.querySelector("#preguntaPiedra");
+            const btnSi = miniJuegoModal.querySelector("#botonSiPiedra");
+            const btnNo = miniJuegoModal.querySelector("#botonNoPiedra");
+            const mensaje = miniJuegoModal.querySelector("#mensajePiedra");
+            const temporizadorPiedra = miniJuegoModal.querySelector("#temporizadorPiedra");
+
+            let secuencia = [];
+            let preguntaActual = "";
+
+            function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+            function generarSecuencia() {
+                secuencia = [];
+                while (secuencia.length < 5) secuencia.push(Math.floor(Math.random() * 20) + 1);
+            }
+
+            async function mostrarSecuencia() {
+                displaySecuencia.innerText = "";
+                preguntaPiedra.innerText = "";
+                btnSi.disabled = true;
+                btnNo.disabled = true;
+
+                for (let numeroActual of secuencia) {
+                    displaySecuencia.innerText = numeroActual;
+                    await sleep(1000);
+                    displaySecuencia.innerText = "";
+                    await sleep(500);
+                }
+                displaySecuencia.innerText = "Memoriza la siguiente secuencia...";
+                await sleep(500);
+                generarPregunta();
+            }
+
+            function generarPregunta() {
+                const opciones = [
+                    "¿Había exactamente 2 números pares?",
+                    "¿Había exactamente 2 números impares?",
+                    "¿La suma de todos los números superaba 50?",
+                    "¿Había 2 números iguales?",
+                    "¿Había algún número menor a 10?"
+                ];
+                preguntaActual = opciones[Math.floor(Math.random() * opciones.length)];
+                preguntaPiedra.innerText = preguntaActual;
+                btnSi.disabled = false;
+                btnNo.disabled = false;
+                displaySecuencia.innerText = "";
+            }
+
+            async function validarRespuesta(respuesta) {
+                const body = { pregunta: preguntaActual, respuesta, secuencia };
+                const response = await fetch('/V2/ValidarPiedra', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                clearInterval(intervaloTemporizador);
+                mostrarMensaje(mensaje, data.mensaje, data.correcto);
+                setTimeout(() => modal.hide(), data.correcto ? 1000 : 2000);
+            }
+
+            iniciarTemporizador(temporizadorPiedra, 60, () => {
+                mostrarMensaje(mensajePiedra, "⏳ Tiempo agotado", false);
+                setTimeout(() => modal.hide(), 1000);
+            });
+
+            btnSi.onclick = () => validarRespuesta("Sí");
+            btnNo.onclick = () => validarRespuesta("No");
+
+            generarSecuencia();
+            mostrarSecuencia();
+        }
+
+        /* ------------------ MINIJUEGO COMIDA ------------------ */
+        function iniciarComida(miniJuegoModal, modal) {
+            const displaySecuencia = miniJuegoModal.querySelector("#numerosComida");
+            const proposicionComida = miniJuegoModal.querySelector("#proposicionComida");
+            const btnVerdadero = miniJuegoModal.querySelector("#botonVerdaderoComida");
+            const btnFalso = miniJuegoModal.querySelector("#botonFalsoComida");
+            const mensaje = miniJuegoModal.querySelector("#mensajeComida");
+            const temporizadorComida = miniJuegoModal.querySelector("#temporizadorComida");
+
+            let numeros = [];
+            let proposicion = "";
+
+            function generarNumeros() {
+                numeros = [];
+                while (numeros.length < 3) numeros.push(Math.floor(Math.random() * 100) + 1);
+            }
+
+            function generarProposicion() {
+                const opciones = [
+                    "Exactamente 2 números son pares",
+                    "La suma de los 3 números es par",
+                    "El número mayor es mayor que la suma de los otros dos",
+                    "Hay al menos un número mayor que 50",
+                    "Todos los números son diferentes"
+                ];
+                proposicion = opciones[Math.floor(Math.random() * opciones.length)];
+                proposicionComida.innerText = proposicion;
+                displaySecuencia.innerText = numeros.join(", ");
+                btnVerdadero.disabled = false;
+                btnFalso.disabled = false;
+            }
+
+            async function validarComida(respuesta) {
+                const body = { numeros, proposicion, respuesta };
+                const response = await fetch('/V2/ValidarComida', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                clearInterval(intervaloTemporizador);
+                mostrarMensaje(mensaje, data.mensaje, data.correcto);
+                setTimeout(() => modal.hide(), data.correcto ? 1000 : 2000);
+            }
+
+            iniciarTemporizador(temporizadorComida, 60, () => {
+                mostrarMensaje(mensajeComida, "⏳ Tiempo agotado", false);
+                setTimeout(() => modal.hide(), 1000);
+            });
+
+            btnVerdadero.onclick = () => validarComida("Verdadero");
+            btnFalso.onclick = () => validarComida("Falso");
+
+            generarNumeros();
+            generarProposicion();
+        }
+
+        /* estilos */
+        function mostrarMensaje(elemento, mensaje, correcto) {
+            elemento.innerText = mensaje;
+            elemento.className = correcto ? "text-success mt-2" : "text-danger mt-2";
+            elemento.style.display = "block";
+        }
+
+        // botones
+        document.querySelectorAll(".abrir-minijuego").forEach(btn => {
+            btn.addEventListener("click", () => abrirMinijuego(btn.dataset.recurso));
+        });
+    </script>
 </body>
 </html>

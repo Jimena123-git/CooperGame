@@ -8,6 +8,7 @@ namespace CooperGame.Models
         public int IdRecurso { get; set; }
 
        public TipoRecurso Tipo { get; set; }
+       
     }
 
     public enum TipoRecurso

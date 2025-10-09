@@ -19,6 +19,10 @@ namespace CooperGame.Controllers
             _partidaService = partidaService;
         }
 
+        public IActionResult V2()
+        {
+            return View(); 
+        }
         public IActionResult Index()
         {
             int? jugadorId = HttpContext.Session.GetInt32("JugadorId");
